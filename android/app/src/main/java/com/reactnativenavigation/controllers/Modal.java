@@ -6,14 +6,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.facebook.react.bridge.Callback;
 import com.reactnativenavigation.R;
 import com.reactnativenavigation.layouts.Layout;
 import com.reactnativenavigation.layouts.ModalScreenLayout;
 import com.reactnativenavigation.layouts.ScreenStackContainer;
-import com.reactnativenavigation.params.AppStyle;
-import com.reactnativenavigation.params.ContextualMenuParams;
-import com.reactnativenavigation.params.Orientation;
 import com.reactnativenavigation.params.ScreenParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
@@ -31,28 +27,20 @@ public class Modal extends Dialog implements DialogInterface.OnDismissListener, 
         layout.setTopBarVisible(screenInstanceId, hidden, animated);
     }
 
-    void setTitleBarTitle(String screenInstanceId, String title) {
+    public void setTitleBarTitle(String screenInstanceId, String title) {
         layout.setTitleBarTitle(screenInstanceId, title);
     }
 
-    void setTitleBarSubtitle(String screenInstanceId, String subtitle) {
+    public void setTitleBarSubtitle(String screenInstanceId, String subtitle) {
         layout.setTitleBarSubtitle(screenInstanceId, subtitle);
     }
 
-    void setTitleBarRightButtons(String screenInstanceId, String navigatorEventId, List<TitleBarButtonParams> titleBarButtons) {
+    public void setTitleBarRightButtons(String screenInstanceId, String navigatorEventId, List<TitleBarButtonParams> titleBarButtons) {
         layout.setTitleBarRightButtons(screenInstanceId, navigatorEventId, titleBarButtons);
     }
 
     public void setTitleBarLeftButton(String screenInstanceId, String navigatorEventId, TitleBarLeftButtonParams titleBarLeftButton) {
         layout.setTitleBarLeftButton(screenInstanceId, navigatorEventId, titleBarLeftButton);
-    }
-
-    public void showContextualMenu(String screenInstanceId, ContextualMenuParams params, Callback onButtonClicked) {
-        layout.showContextualMenu(screenInstanceId, params, onButtonClicked);
-    }
-
-    public void dismissContextualMenu(String screenInstanceId) {
-        layout.dismissContextualMenu(screenInstanceId);
     }
 
     @Override
@@ -66,7 +54,7 @@ public class Modal extends Dialog implements DialogInterface.OnDismissListener, 
     public void onSideMenuButtonClick() {
     }
 
-    interface OnModalDismissedListener {
+    public interface OnModalDismissedListener {
         void onModalDismissed(Modal modal);
     }
 
@@ -86,9 +74,8 @@ public class Modal extends Dialog implements DialogInterface.OnDismissListener, 
         setCancelable(true);
         setOnDismissListener(this);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        layout = new ModalScreenLayout(getActivity(), screenParams, this);
+        layout = new ModalScreenLayout(getActivity(), null, screenParams, this);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        setOrientation(screenParams.styleParams.orientation);
         setContentView(layout.asView());
     }
 
@@ -112,7 +99,7 @@ public class Modal extends Dialog implements DialogInterface.OnDismissListener, 
         layout.newStack(params);
     }
 
-    boolean containsNavigator(String navigatorId) {
+    public boolean containsNavigator(String navigatorId) {
         return layout.containsNavigator(navigatorId);
     }
 
@@ -131,15 +118,10 @@ public class Modal extends Dialog implements DialogInterface.OnDismissListener, 
     @Override
     public void onDismiss(DialogInterface dialog) {
         destroy();
-        setOrientation(AppStyle.appStyle.orientation);
         onModalDismissedListener.onModalDismissed(this);
     }
 
-    void onModalDismissed() {
+    public void onModalDismissed() {
         layout.onModalDismissed();
-    }
-
-    private void setOrientation(Orientation orientation) {
-        getActivity().setRequestedOrientation(orientation.orientationCode);
     }
 }

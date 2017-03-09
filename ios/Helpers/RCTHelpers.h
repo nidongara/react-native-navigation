@@ -7,10 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <React/RCTRootView.h>
+#import "RCTRootView.h"
 
 @interface RCTHelpers : NSObject
 +(BOOL)removeYellowBox:(RCTRootView*)reactRootView;
-+ (NSMutableDictionary *)textAttributesFromDictionary:(NSDictionary *)dictionary withPrefix:(NSString *)prefix;
-+ (NSMutableDictionary *)textAttributesFromDictionary:(NSDictionary *)dictionary withPrefix:(NSString *)prefix baseFont:(UIFont *)font;
 @end

@@ -4,8 +4,6 @@ import android.os.Bundle;
 
 import com.reactnativenavigation.params.ActivityParams;
 import com.reactnativenavigation.params.AppStyle;
-import com.reactnativenavigation.params.SideMenuParams;
-import com.reactnativenavigation.views.SideMenu;
 
 public class ActivityParamsParser extends Parser {
     public static ActivityParams parse(Bundle params) {
@@ -24,9 +22,7 @@ public class ActivityParamsParser extends Parser {
         }
 
         if (hasKey(params, "sideMenu")) {
-            SideMenuParams[] sideMenus = SideMenuParamsParser.parse(params.getBundle("sideMenu"));
-            result.leftSideMenuParams = sideMenus[SideMenu.Side.Left.ordinal()];
-            result.rightSideMenuParams = sideMenus[SideMenu.Side.Right.ordinal()];
+            result.sideMenuParams = SideMenuParamsParser.parse(params.getBundle("sideMenu"));
         }
 
         result.animateShow = params.getBoolean("animateShow", true);

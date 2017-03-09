@@ -9,14 +9,6 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-@interface RCCTitleView : UIView
-
-@property (nonatomic, strong) UILabel *titleLabel;
-
-@property (nonatomic, strong) UILabel *subtitleLabel;
-
-@end
-
 @interface RCCTitleViewHelper : NSObject
 
 

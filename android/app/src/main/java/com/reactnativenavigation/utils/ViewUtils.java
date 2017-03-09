@@ -5,17 +5,13 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 
 import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.params.AppStyle;
-import com.reactnativenavigation.screens.Screen;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -47,16 +43,6 @@ public class ViewUtils {
         return dp * scale + 0.5f;
     }
 
-    public static float convertPixelToSp(float pixels) {
-        float scaledDensity = NavigationApplication.instance.getResources().getDisplayMetrics().scaledDensity;
-        return pixels/scaledDensity;
-    }
-
-    public static float convertSpToPixel(float pixels) {
-        float scaledDensity = NavigationApplication.instance.getResources().getDisplayMetrics().scaledDensity;
-        return pixels * scaledDensity;
-    }
-
     public static int generateViewId() {
         if (Build.VERSION.SDK_INT >= 17) {
             return View.generateViewId();
@@ -84,68 +70,5 @@ public class ViewUtils {
         }
     }
 
-    public interface Matcher<T> {
-        boolean match(T child);
-    }
-
-    /**
-     * Returns the first instance of clazz in root
-     */
-    @Nullable public static <T> T findChildByClass(ViewGroup root, Class clazz) {
-        return findChildByClass(root, clazz, null);
-    }
-
-    @Nullable public static <T> T findChildByClass(ViewGroup root, Class clazz, Matcher<T> matcher) {
-        for (int i = 0; i < root.getChildCount(); i++) {
-            View view = root.getChildAt(i);
-            if (clazz.isAssignableFrom(view.getClass())) {
-                return (T) view;
-            }
-
-            if (view instanceof ViewGroup) {
-                view = (View) findChildByClass((ViewGroup) view, clazz, matcher);
-                if (view != null && clazz.isAssignableFrom(view.getClass())) {
-                    if (matcher == null) {
-                        return (T) view;
-                    }
-                    if (matcher.match((T) view)) {
-                        return (T) view;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    public static void performOnChildren(ViewGroup root, PerformOnViewTask task) {
-        for (int i = 0; i < root.getChildCount(); i++) {
-            View child = root.getChildAt(i);
-            if (child instanceof ViewGroup) {
-                performOnChildren((ViewGroup) child, task);
-            }
-            task.runOnView(child);
-        }
-    }
-
-    public interface PerformOnViewTask {
-        void runOnView(View view);
-    }
-
-    public static void performOnParentScreen(View child, Task<Screen> task) {
-        Screen parentScreen = findParentScreen(child.getParent());
-        if (parentScreen != null) {
-            task.run(parentScreen);
-        }
-    }
-
-    private static Screen findParentScreen(ViewParent parent) {
-        if (parent == null) {
-            return null;
-        }
-        if (parent instanceof Screen) {
-            return (Screen) parent;
-        }
-        return findParentScreen(parent.getParent());
-    }
 }
 

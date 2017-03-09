@@ -7,13 +7,7 @@
 //
 
 #import "RCCTitleViewHelper.h"
-#import <React/RCTConvert.h>
-#import "RCTHelpers.h"
-
-@implementation RCCTitleView
-
-
-@end
+#import "RCTConvert.h"
 
 @interface RCCTitleViewHelper ()
 
@@ -24,7 +18,7 @@
 @property (nonatomic, strong) NSString *subtitle;
 @property (nonatomic, strong) id titleImageData;
 
-@property (nonatomic, strong) RCCTitleView *titleView;
+@property (nonatomic, strong) UIView *titleView;
 
 @end
 
@@ -56,10 +50,14 @@ navigationController:(UINavigationController*)navigationController
     
     CGRect navigationBarBounds = self.navigationController.navigationBar.bounds;
     
-    self.titleView = [[RCCTitleView alloc] initWithFrame:navigationBarBounds];
+    UILabel *titleLabel;
+    UILabel *subtitleLabel;
+    
+    self.titleView = [[UIView alloc] initWithFrame:navigationBarBounds];
     self.titleView.backgroundColor = [UIColor clearColor];
     self.titleView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
     self.titleView.clipsToBounds = YES;
+    
     
     self.viewController.title = self.title;
     
@@ -76,15 +74,15 @@ navigationController:(UINavigationController*)navigationController
     
     if (self.subtitle)
     {
-        self.titleView.subtitleLabel = [self setupSubtitle:style];
+        subtitleLabel = [self setupSubtitle:style];
     }
     
     if (self.title)
     {
-        self.titleView.titleLabel = [self setupTitle:style];
+        titleLabel = [self setupTitle:style];
     }
     
-    [self centerTitleView:navigationBarBounds titleLabel:self.titleView.titleLabel subtitleLabel:self.titleView.subtitleLabel];
+    [self centerTitleView:navigationBarBounds titleLabel:titleLabel subtitleLabel:subtitleLabel];
     
     self.viewController.navigationItem.titleView = self.titleView;
 }
@@ -137,14 +135,28 @@ navigationController:(UINavigationController*)navigationController
     subtitleFrame.origin.y = subtitleFrame.size.height;
     
     UILabel *subtitleLabel = [[UILabel alloc] initWithFrame:subtitleFrame];
+    subtitleLabel.text = self.subtitle;
     subtitleLabel.textAlignment = NSTextAlignmentCenter;
     subtitleLabel.backgroundColor = [UIColor clearColor];
     subtitleLabel.autoresizingMask = self.titleView.autoresizingMask;
+    UIFont *subtitleFont = [UIFont systemFontOfSize:14.f];
     
-    NSMutableDictionary *subtitleAttributes = [RCTHelpers textAttributesFromDictionary:style withPrefix:@"navBarSubtitle" baseFont:[UIFont systemFontOfSize:14.f]];
-    [subtitleLabel setAttributedText:[[NSAttributedString alloc] initWithString:self.subtitle attributes:subtitleAttributes]];
+    id fontSize = style[@"navBarSubtitleFontSize"];
+    if (fontSize) {
+        CGFloat fontSizeFloat = [RCTConvert CGFloat:fontSize];
+        subtitleFont = [UIFont boldSystemFontOfSize:fontSizeFloat];
+    }
     
-    CGSize labelSize = [subtitleLabel.text sizeWithAttributes:subtitleAttributes];
+    subtitleLabel.font = subtitleFont;
+    
+    id navBarSubtitleTextColor = style[@"navBarSubtitleTextColor"];
+    if (navBarSubtitleTextColor)
+    {
+        UIColor *color = navBarSubtitleTextColor != (id)[NSNull null] ? [RCTConvert UIColor:navBarSubtitleTextColor] : nil;
+        subtitleLabel.textColor = color;
+    }
+    
+    CGSize labelSize = [subtitleLabel.text sizeWithAttributes:@{NSFontAttributeName:subtitleFont}];
     CGRect labelframe = subtitleLabel.frame;
     labelframe.size = labelSize;
     subtitleLabel.frame = labelframe;
@@ -163,6 +175,7 @@ navigationController:(UINavigationController*)navigationController
         titleFrame.size.height /= 2;
     }
     UILabel *titleLabel = [[UILabel alloc] initWithFrame:titleFrame];
+    titleLabel.text = self.title;
     titleLabel.textAlignment = NSTextAlignmentCenter;
     titleLabel.backgroundColor = [UIColor clearColor];
     
@@ -177,9 +190,6 @@ navigationController:(UINavigationController*)navigationController
     }
     
     titleLabel.font = titleFont;
-    
-    NSMutableDictionary *titleAttributes = [RCTHelpers textAttributesFromDictionary:style withPrefix:@"navBarTitle" baseFont:[UIFont systemFontOfSize:14.f]];
-    [titleLabel setAttributedText:[[NSAttributedString alloc] initWithString:self.title attributes:titleAttributes]];
     
     CGSize labelSize = [titleLabel.text sizeWithAttributes:@{NSFontAttributeName:titleFont}];
     CGRect labelframe = titleLabel.frame;

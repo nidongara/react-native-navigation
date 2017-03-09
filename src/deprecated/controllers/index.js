@@ -1,4 +1,3 @@
-/*eslint-disable*/
 var OriginalReactNative = require('react-native');
 var RCCManager = OriginalReactNative.NativeModules.RCCManager;
 var NativeAppEventEmitter = OriginalReactNative.NativeAppEventEmitter;
@@ -171,11 +170,6 @@ var Controllers = {
         }
         RCCManager.NavigationControllerIOS(id, "setTitle", params);
       },
-      setStyle: function (params) {
-        style = Object.assign({}, params);
-        _processProperties(style);
-        RCCManager.NavigationControllerIOS(id, "setStyle", style);
-      },
       resetTo: function (params) {
         var unsubscribes = [];
         if (params['style']) {
@@ -263,8 +257,8 @@ var Controllers = {
       _validateDrawerProps(layout);
       RCCManager.showController(layout, animationType, passProps);
     },
-    dismissController: async function(animationType = 'slide-down') {
-      return await RCCManager.dismissController(animationType);
+    dismissController: function(animationType = 'slide-down') {
+      RCCManager.dismissController(animationType);
     },
     dismissAllControllers: function(animationType = 'slide-down') {
       RCCManager.dismissAllControllers(animationType);

@@ -87,9 +87,6 @@ public class FloatingActionButtonAnimator {
     }
 
     void removeFabFromScreen(FloatingActionButton fab, final AnimatorListenerAdapter animationListener) {
-        if (fab == null) {
-            return;
-        }
         state = State.Removing;
         fab.animate()
                 .alpha(0)

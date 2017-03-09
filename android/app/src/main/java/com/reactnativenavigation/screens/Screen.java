@@ -8,18 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.widget.RelativeLayout;
 
-import com.facebook.react.bridge.Callback;
-import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.animation.VisibilityAnimator;
-import com.reactnativenavigation.events.ContextualMenuHiddenEvent;
-import com.reactnativenavigation.events.Event;
-import com.reactnativenavigation.events.EventBus;
-import com.reactnativenavigation.events.FabSetEvent;
-import com.reactnativenavigation.events.Subscriber;
-import com.reactnativenavigation.events.ViewPagerScreenChangedEvent;
 import com.reactnativenavigation.params.BaseScreenParams;
-import com.reactnativenavigation.params.ContextualMenuParams;
-import com.reactnativenavigation.params.FabParams;
 import com.reactnativenavigation.params.ScreenParams;
 import com.reactnativenavigation.params.StyleParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
@@ -33,7 +23,7 @@ import java.util.List;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
-public abstract class Screen extends RelativeLayout implements Subscriber {
+public abstract class Screen extends RelativeLayout {
 
     public interface OnDisplayListener {
         void onDisplay();
@@ -45,7 +35,7 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
     private final LeftButtonOnClickListener leftButtonOnClickListener;
     private VisibilityAnimator topBarVisibilityAnimator;
     private ScreenAnimator screenAnimator;
-    protected final StyleParams styleParams;
+    private final StyleParams styleParams;
 
     public Screen(AppCompatActivity activity, ScreenParams screenParams, LeftButtonOnClickListener leftButtonOnClickListener) {
         super(activity);
@@ -55,32 +45,16 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
         this.leftButtonOnClickListener = leftButtonOnClickListener;
         screenAnimator = new ScreenAnimator(this);
         createViews();
-        EventBus.instance.register(this);
-    }
-
-    @Override
-    public void onEvent(Event event) {
-        if (ContextualMenuHiddenEvent.TYPE.equals(event.getType()) && isShown()) {
-            setStyle();
-            topBar.onContextualMenuHidden();
-        }
-        if (ViewPagerScreenChangedEvent.TYPE.equals(event.getType()) && isShown() ) {
-            setStyle();
-            topBar.dismissContextualMenu();
-        }
     }
 
     public void setStyle() {
         setStatusBarColor(styleParams.statusBarColor);
         setNavigationBarColor(styleParams.navigationBarColor);
         topBar.setStyle(styleParams);
-        if (styleParams.screenBackgroundColor.hasColor()) {
-            setBackgroundColor(styleParams.screenBackgroundColor.getColor());
-        }
     }
 
     private void createViews() {
-        createAndAddTopBar();
+        createTopBar();
         createTitleBar();
         createContent();
     }
@@ -90,7 +64,6 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
     private void createTitleBar() {
         addTitleBarButtons();
         topBar.setTitle(screenParams.title);
-        topBar.setSubtitle(screenParams.subtitle);
     }
 
     private void addTitleBarButtons() {
@@ -105,16 +78,8 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
                 screenParams.overrideBackPressInJs);
     }
 
-    private void createAndAddTopBar() {
-        topBar = createTopBar();
-        addTopBar();
-    }
-
-    protected TopBar createTopBar() {
-        return new TopBar(getContext());
-    }
-
-    private void addTopBar() {
+    private void createTopBar() {
+        topBar = new TopBar(getContext());
         createTopBarVisibilityAnimator();
         addView(topBar, new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
     }
@@ -164,14 +129,15 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
         return screenParams.getScreenInstanceId();
     }
 
-    public abstract String getNavigatorEventId();
+    public String getNavigatorEventId() {
+        return screenParams.getNavigatorEventId();
+    }
 
     public BaseScreenParams getScreenParams() {
         return screenParams;
     }
 
     public void setTopBarVisible(boolean visible, boolean animate) {
-        screenParams.styleParams.titleBarHidden = !visible;
         topBarVisibilityAnimator.setVisible(visible, animate);
     }
 
@@ -190,18 +156,10 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
 
     public void setTitleBarLeftButton(String navigatorEventId, LeftButtonOnClickListener backButtonListener,
                                       TitleBarLeftButtonParams titleBarLeftButtonParams) {
-        titleBarLeftButtonParams.setColorFromScreenStyle(styleParams.titleBarButtonColor);
         topBar.setTitleBarLeftButton(navigatorEventId,
                 backButtonListener,
                 titleBarLeftButtonParams,
                 screenParams.overrideBackPressInJs);
-    }
-
-    public void setFab(FabParams fabParams) {
-        screenParams.fabParams = fabParams;
-        if (isShown()) {
-            EventBus.instance.post(new FabSetEvent(fabParams));
-        }
     }
 
     public StyleParams getStyleParams() {
@@ -221,41 +179,19 @@ public abstract class Screen extends RelativeLayout implements Subscriber {
     public abstract void setOnDisplayListener(OnDisplayListener onContentViewDisplayedListener);
 
     public void show() {
-        NavigationApplication.instance.getEventEmitter().sendNavigatorEvent("willAppear", screenParams.getNavigatorEventId());
-        NavigationApplication.instance.getEventEmitter().sendNavigatorEvent("didAppear", screenParams.getNavigatorEventId());
         screenAnimator.show(screenParams.animateScreenTransitions);
     }
 
     public void show(boolean animated) {
-        NavigationApplication.instance.getEventEmitter().sendNavigatorEvent("willAppear", screenParams.getNavigatorEventId());
-        NavigationApplication.instance.getEventEmitter().sendNavigatorEvent("didAppear", screenParams.getNavigatorEventId());
         screenAnimator.show(animated);
     }
 
     public void show(boolean animated, Runnable onAnimationEnd) {
-        NavigationApplication.instance.getEventEmitter().sendNavigatorEvent("willAppear", screenParams.getNavigatorEventId());
-        NavigationApplication.instance.getEventEmitter().sendNavigatorEvent("didAppear", screenParams.getNavigatorEventId());
         setStyle();
         screenAnimator.show(animated, onAnimationEnd);
     }
 
     public void hide(boolean animated, Runnable onAnimatedEnd) {
-        NavigationApplication.instance.getEventEmitter().sendNavigatorEvent("willDisappear", screenParams.getNavigatorEventId());
-        NavigationApplication.instance.getEventEmitter().sendNavigatorEvent("didDisappear", screenParams.getNavigatorEventId());
         screenAnimator.hide(animated, onAnimatedEnd);
-    }
-
-    public void showContextualMenu(ContextualMenuParams params, Callback onButtonClicked) {
-        topBar.showContextualMenu(params, styleParams, onButtonClicked);
-        setStatusBarColor(styleParams.contextualMenuStatusBarColor);
-    }
-
-    public void dismissContextualMenu() {
-        topBar.dismissContextualMenu();
-    }
-
-    public void destroy() {
-        unmountReactView();
-        EventBus.instance.unregister(this);
     }
 }

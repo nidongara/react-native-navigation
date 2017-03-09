@@ -1,6 +1,6 @@
 /*eslint-disable*/
 import React, {Component} from 'react';
-import {AppRegistry, NativeModules, processColor} from 'react-native';
+import {AppRegistry, NativeModules} from 'react-native';
 import _ from 'lodash';
 
 import Navigation from './../Navigation';
@@ -28,9 +28,6 @@ function startSingleScreenApp(params) {
   params.screen = adaptNavigationStyleToScreenStyle(screen);
   params.screen = adaptNavigationParams(screen);
   params.appStyle = convertStyleParams(params.appStyle);
-  if (params.appStyle) {
-    params.appStyle.orientation = getOrientation(params);
-  }
   params.sideMenu = convertDrawerParamsToSideMenuParams(params.drawer);
   params.overrideBackPress = screen.overrideBackPress;
   params.animateShow = convertAnimationType(params.animationType);
@@ -38,31 +35,15 @@ function startSingleScreenApp(params) {
   newPlatformSpecific.startApp(params);
 }
 
-function getOrientation(params) {
-  if (params.portraitOnlyMode || _.get(params, 'appStyle.orientation') === 'portrait') {
-    return 'portrait';
-  }
-  if (params.landscaptOnlyMode || _.get(params, 'appStyle.orientation') === 'landscape') {
-    return 'landscape';
-  }
-  return 'auto';
-}
-
 function adaptTopTabs(screen, navigatorID) {
-  screen.topTabs = _.cloneDeep(screen.topTabs);
   _.forEach(_.get(screen, 'topTabs'), (tab) => {
     addNavigatorParams(tab);
     if (navigatorID) {
       tab.navigatorID = navigatorID;
     }
     tab.screen = tab.screenId;
-    if (tab.icon) {
-      addTabIcon(tab);
-    }
     addNavigatorButtons(tab);
     adaptNavigationParams(tab);
-    addNavigationStyleParams(tab);
-    tab = adaptNavigationStyleToScreenStyle(tab);
   });
 }
 
@@ -78,7 +59,7 @@ function navigatorPush(navigator, params) {
   let adapted = adaptNavigationStyleToScreenStyle(params);
   adapted = adaptNavigationParams(adapted);
   adapted.overrideBackPress = params.overrideBackPress;
-
+  
   newPlatformSpecific.push(adapted);
 }
 
@@ -132,94 +113,52 @@ function convertStyleParams(originalStyleObject) {
     return null;
   }
 
-  let ret = {
-    orientation: originalStyleObject.orientation,
-    statusBarColor: processColor(originalStyleObject.statusBarColor),
-    topBarColor: processColor(originalStyleObject.navBarBackgroundColor),
+  return {
+    statusBarColor: originalStyleObject.statusBarColor,
+    topBarColor: originalStyleObject.navBarBackgroundColor,
     topBarTransparent: originalStyleObject.navBarTransparent,
-    topBarTranslucent: originalStyleObject.navBarTranslucent,
-    topBarElevationShadowEnabled: originalStyleObject.topBarElevationShadowEnabled,
-    topBarCollapseOnScroll: originalStyleObject.topBarCollapseOnScroll,
-    collapsingToolBarImage: originalStyleObject.collapsingToolBarImage,
-    collapsingToolBarComponent: originalStyleObject.collapsingToolBarComponent,
-    collapsingToolBarComponentHeight: originalStyleObject.collapsingToolBarComponentHeight,
-    collapsingToolBarCollapsedColor: processColor(originalStyleObject.collapsingToolBarCollapsedColor),
-    collapsingToolBarExpendedColor: processColor(originalStyleObject.collapsingToolBarExpendedColor),
-    showTitleWhenExpended: originalStyleObject.showTitleWhenExpended,
-    expendCollapsingToolBarOnTopTabChange: originalStyleObject.expendCollapsingToolBarOnTopTabChange,
     titleBarHidden: originalStyleObject.navBarHidden,
-    titleBarHideOnScroll: originalStyleObject.navBarHideOnScroll,
-    titleBarTitleColor: processColor(originalStyleObject.navBarTextColor),
-    titleBarSubtitleColor: processColor(originalStyleObject.navBarSubtitleColor),
-    titleBarButtonColor: processColor(originalStyleObject.navBarButtonColor),
-    titleBarDisabledButtonColor: processColor(originalStyleObject.titleBarDisabledButtonColor),
+    titleBarTitleColor: originalStyleObject.navBarTextColor,
+    titleBarSubtitleColor: originalStyleObject.navBarTextSubtitleColor,
+    titleBarButtonColor: originalStyleObject.navBarButtonColor,
+    titleBarDisabledButtonColor: originalStyleObject.titleBarDisabledButtonColor,
     backButtonHidden: originalStyleObject.backButtonHidden,
     topTabsHidden: originalStyleObject.topTabsHidden,
-    contextualMenuStatusBarColor: processColor(originalStyleObject.contextualMenuStatusBarColor),
-    contextualMenuBackgroundColor: processColor(originalStyleObject.contextualMenuBackgroundColor),
-    contextualMenuButtonsColor: processColor(originalStyleObject.contextualMenuButtonsColor),
 
     drawBelowTopBar: !originalStyleObject.drawUnderNavBar,
 
-    topTabTextColor: processColor(originalStyleObject.topTabTextColor),
-    topTabIconColor: processColor(originalStyleObject.topTabIconColor),
-    selectedTopTabIconColor: processColor(originalStyleObject.selectedTopTabIconColor),
-    selectedTopTabTextColor: processColor(originalStyleObject.selectedTopTabTextColor),
+    topTabTextColor: originalStyleObject.topTabTextColor,
+    selectedTopTabTextColor: originalStyleObject.selectedTopTabTextColor,
     selectedTopTabIndicatorHeight: originalStyleObject.selectedTopTabIndicatorHeight,
-    selectedTopTabIndicatorColor: processColor(originalStyleObject.selectedTopTabIndicatorColor),
-    topTabScrollable: originalStyleObject.topTabScollable,
-    screenBackgroundColor: processColor(originalStyleObject.screenBackgroundColor),
+    selectedTopTabIndicatorColor: originalStyleObject.selectedTopTabIndicatorColor,
 
     drawScreenAboveBottomTabs: !originalStyleObject.drawUnderTabBar,
 
-    bottomTabsColor: processColor(originalStyleObject.tabBarBackgroundColor),
-    bottomTabsButtonColor: processColor(originalStyleObject.tabBarButtonColor),
-    bottomTabsSelectedButtonColor: processColor(originalStyleObject.tabBarSelectedButtonColor),
+    bottomTabsColor: originalStyleObject.tabBarBackgroundColor,
+    bottomTabsButtonColor: originalStyleObject.tabBarButtonColor,
+    bottomTabsSelectedButtonColor: originalStyleObject.tabBarSelectedButtonColor,
     bottomTabsHidden: originalStyleObject.tabBarHidden,
     bottomTabsHiddenOnScroll: originalStyleObject.bottomTabsHiddenOnScroll,
     forceTitlesDisplay: originalStyleObject.forceTitlesDisplay,
-    bottomTabBadgeTextColor: processColor(originalStyleObject.bottomTabBadgeTextColor),
-    bottomTabBadgeBackgroundColor: processColor(originalStyleObject.bottomTabBadgeBackgroundColor),
+    bottomTabBadgeTextColor: originalStyleObject.bottomTabBadgeTextColor,
+    bottomTabBadgeBackgroundColor: originalStyleObject.bottomTabBadgeBackgroundColor,
 
-    navigationBarColor: processColor(originalStyleObject.navigationBarColor)
+    navigationBarColor: originalStyleObject.navigationBarColor
   }
-
-  if (originalStyleObject.collapsingToolBarImage) {
-    if (_.isString(originalStyleObject.collapsingToolBarImage)) {
-      ret.collapsingToolBarImage = originalStyleObject.collapsingToolBarImage;
-    }
-
-    const collapsingToolBarImage = resolveAssetSource(originalStyleObject.collapsingToolBarImage)
-    if (collapsingToolBarImage) {
-      ret.collapsingToolBarImage = collapsingToolBarImage.uri;
-    }
-  }
-  if (_.isUndefined(ret.expendCollapsingToolBarOnTopTabChange)) {
-    ret.expendCollapsingToolBarOnTopTabChange = true;
-  }
-  return ret;
 }
 
 function convertDrawerParamsToSideMenuParams(drawerParams) {
   const drawer = Object.assign({}, drawerParams);
+  if (!drawer.left || !drawer.left.screen) {
+    return null;
+  }
 
-  let result = {
-    left: {},
-    right: {}
-  };
-
-  Object.keys(result).forEach((key) => {
-    if (drawer[key] && drawer[key].screen) {
-      result[key].screenId = drawer[key].screen;
-      addNavigatorParams(result[key]);
-      result[key] = adaptNavigationParams(result[key]);
-      result[key].passProps = drawer[key].passProps;
-      result[key].disableOpenGesture = drawer.disableOpenGesture;
-    } else {
-      result[key] = null;
-    }
-  })
-
+  let result = {};
+  result.disableOpenGesture = drawer.disableOpenGesture !== undefined;
+  result.screenId = drawer.left.screen;
+  addNavigatorParams(result);
+  result = adaptNavigationParams(result);
+  result.passProps = drawer.passProps;
   return result;
 }
 
@@ -239,8 +178,6 @@ function startTabBasedApp(params) {
   }
 
   const newTabs = [];
-
-  params.tabs = _.cloneDeep(params.tabs);
 
   params.tabs.forEach(function(tab, idx) {
     addNavigatorParams(tab, null, idx);
@@ -263,9 +200,6 @@ function startTabBasedApp(params) {
   params.tabs = newTabs;
 
   params.appStyle = convertStyleParams(params.appStyle);
-  if (params.appStyle) {
-    params.appStyle.orientation = getOrientation(params);
-  }
   params.sideMenu = convertDrawerParamsToSideMenuParams(params.drawer);
   params.animateShow = convertAnimationType(params.animationType);
 
@@ -289,8 +223,7 @@ function convertAnimationType(animationType) {
   return animationType !== 'none';
 }
 
-function navigatorSetButtons(navigator, navigatorEventID, _params) {
-  const params = _.cloneDeep(_params);
+function navigatorSetButtons(navigator, navigatorEventID, params) {
   if (params.rightButtons) {
     params.rightButtons.forEach(function(button) {
       button.enabled = !button.disabled;
@@ -302,7 +235,7 @@ function navigatorSetButtons(navigator, navigatorEventID, _params) {
       }
     });
   }
-  let leftButton = getLeftButton(params);
+  const leftButton = getLeftButton(params);
   if (leftButton) {
     if (leftButton.icon) {
       const icon = resolveAssetSource(leftButton.icon);
@@ -310,19 +243,12 @@ function navigatorSetButtons(navigator, navigatorEventID, _params) {
         leftButton.icon = icon.uri;
       }
     }
-  } else if (shouldRemoveLeftButton(params)) {
-    leftButton = {};
   }
-  const fab = getFab(params);
-  newPlatformSpecific.setScreenButtons(navigator.screenInstanceID, navigatorEventID, params.rightButtons, leftButton, fab);
-}
-
-function shouldRemoveLeftButton(params) {
-  return params.leftButtons && params.leftButtons.length === 0;
+  newPlatformSpecific.setScreenTitleBarButtons(navigator.screenInstanceID, navigatorEventID, params.rightButtons, leftButton);
 }
 
 function navigatorSetTabBadge(navigator, params) {
-  const badge = params.badge ? params.badge.toString() : '';
+  const badge = params.badge.toString();
   if (params.tabIndex >= 0) {
     newPlatformSpecific.setBottomTabBadgeByIndex(params.tabIndex, badge);
   } else {
@@ -350,15 +276,15 @@ function navigatorToggleDrawer(navigator, params) {
   const animated = !(params.animated === false);
   if (params.to) {
     const visible = params.to === 'open';
-    newPlatformSpecific.setSideMenuVisible(animated, visible, params.side);
+    newPlatformSpecific.setSideMenuVisible(animated, visible);
   } else {
-    newPlatformSpecific.toggleSideMenuVisible(animated, params.side);
+    newPlatformSpecific.toggleSideMenuVisible(animated);
   }
 }
 
 function navigatorToggleNavBar(navigator, params) {
   const screenInstanceID = navigator.screenInstanceID;
-  const visible = params.to === 'shown' || params.to === 'show';
+  const visible = params.to === 'shown';
   const animated = !(params.animated === false);
 
   newPlatformSpecific.toggleTopBarVisible(
@@ -380,7 +306,6 @@ function showModal(params) {
   addTitleBarBackButtonIfNeeded(params);
   addNavigationStyleParams(params);
 
-
   /*
    * adapt to new API
    */
@@ -401,20 +326,6 @@ function dismissAllModals(params) {
   newPlatformSpecific.dismissAllModals();
 }
 
-function showInAppNotification(params) {
-  params.navigationParams = {};
-  addNavigatorParams(params.navigationParams);
-
-  params.autoDismissTimerSec = params.autoDismissTimerSec || 5;
-  if (params.autoDismiss === false) delete params.autoDismissTimerSec;
-
-  newPlatformSpecific.showInAppNotification(params);
-}
-
-function dismissInAppNotification(params) {
-  newPlatformSpecific.dismissInAppNotification(params);
-}
-
 function addNavigatorParams(screen, navigator = null, idx = '') {
   screen.navigatorID = navigator ? navigator.navigatorID : _.uniqueId('navigatorID') + '_nav' + idx;
   screen.screenInstanceID = _.uniqueId('screenInstanceID');
@@ -422,11 +333,8 @@ function addNavigatorParams(screen, navigator = null, idx = '') {
 }
 
 function addNavigatorButtons(screen, sideMenuParams) {
-
   const Screen = Navigation.getRegisteredScreen(screen.screen);
-  if (screen.navigatorButtons == null) {
-    screen.navigatorButtons = _.cloneDeep(Screen.navigatorButtons);
-  }
+  Object.assign(screen, Screen.navigatorButtons);
 
   // Get image uri from image id
   const rightButtons = getRightButtons(screen);
@@ -443,6 +351,9 @@ function addNavigatorButtons(screen, sideMenuParams) {
   }
 
   let leftButton = getLeftButton(screen);
+  if (sideMenuParams && !leftButton) {
+    leftButton = createSideMenuButton();
+  }
   if (leftButton) {
     if (leftButton.icon) {
       const icon = resolveAssetSource(leftButton.icon);
@@ -466,40 +377,29 @@ function addNavigatorButtons(screen, sideMenuParams) {
 }
 
 function getFab(screen) {
-  let fab = screen.fab;
-  if (screen.navigatorButtons && screen.navigatorButtons.fab) {
-    fab = screen.navigatorButtons.fab;
-  }
-  if (fab === null || fab === undefined) {
-    return;
-  }
-  if (Object.keys(fab).length === 0 ) {
-    return {};
-  }
-
-  const collapsedIconUri = resolveAssetSource(fab.collapsedIcon);
-  if (!collapsedIconUri) {
-    return;
-  }
-  fab.collapsedIcon = collapsedIconUri.uri;
-  if (fab.expendedIcon) {
-    const expendedIconUri = resolveAssetSource(fab.expendedIcon);
-    if (expendedIconUri) {
-      fab.expendedIcon = expendedIconUri.uri;
+  if (screen.fab) {
+    const fab = screen.fab;
+    const collapsedIconUri = resolveAssetSource(fab.collapsedIcon);
+    if (!collapsedIconUri) {
+      return;
     }
-  }
-  if (fab.backgroundColor) {
-    fab.backgroundColor = processColor(fab.backgroundColor);
-  }
+    fab.collapsedIcon = collapsedIconUri.uri;
+    if (fab.expendedIcon) {
+      const expendedIconUri = resolveAssetSource(fab.expendedIcon);
+      if (expendedIconUri) {
+        fab.expendedIcon = expendedIconUri.uri;
+      }
+    }
 
-  if (fab.actions) {
-    _.forEach(fab.actions, (action) => {
-      action.icon = resolveAssetSource(action.icon).uri;
-      return action;
-    });
-  }
+    if (fab.actions) {
+      _.forEach(fab.actions, (action) => {
+        action.icon = resolveAssetSource(action.icon).uri;
+        return action;
+      })
+    }
 
-  return fab;
+    return fab;
+  }
 }
 
 function createSideMenuButton() {
@@ -520,6 +420,7 @@ function addTitleBarBackButtonIfNeeded(screen) {
 function getLeftButton(screen) {
   const leftButton = getLeftButtonDeprecated(screen);
   if (leftButton) {
+    console.warn('leftButton is deprecated. Instead, please use leftButtons like on iOS.');
     return leftButton;
   }
 
@@ -549,68 +450,18 @@ function getLeftButtonDeprecated(screen) {
 function getRightButtons(screen) {
   if (screen.navigatorButtons && screen.navigatorButtons.rightButtons) {
     return screen.navigatorButtons.rightButtons;
-  } else if (screen.rightButtons) {
-    return screen.rightButtons
   }
 
-  const Screen = Navigation.getRegisteredScreen(screen.screen);
-
-  if (Screen.navigatorButtons && !_.isEmpty(Screen.navigatorButtons.rightButtons)) {
-    return _.cloneDeep(Screen.navigatorButtons.rightButtons);
-  }
-
-  return null;
+  return screen.rightButtons;
 }
 
 function addNavigationStyleParams(screen) {
   const Screen = Navigation.getRegisteredScreen(screen.screen);
-  screen.navigatorStyle = Object.assign({}, Screen.navigatorStyle, screen.navigatorStyle);
+  screen.navigatorStyle = Object.assign({}, screen.navigatorStyle, Screen.navigatorStyle);
 }
 
 function showSnackbar(navigator, params) {
-  const adapted = _.cloneDeep(params);
-  if (adapted.backgroundColor) {
-    adapted.backgroundColor = processColor(adapted.backgroundColor);
-  }
-  if (adapted.actionColor) {
-    adapted.actionColor = processColor(adapted.actionColor);
-  }
-  if (adapted.textColor) {
-    adapted.textColor = processColor(adapted.textColor);
-  }
-  return newPlatformSpecific.showSnackbar(adapted);
-}
-
-function dismissSnackbar() {
-  return newPlatformSpecific.dismissSnackbar();
-}
-
-function showContextualMenu(navigator, params) {
-  const contextualMenu = {
-    buttons: [],
-    backButton: {id: 'back'},
-    navigationParams: {navigatorEventID: navigator.navigatorEventID}
-  };
-
-  params.rightButtons.forEach((button, index) => {
-    const btn = {
-      icon: resolveAssetSource(button.icon),
-      showAsAction: button.showAsAction,
-      color: processColor(button.color),
-      label: button.title,
-      index
-    };
-    if (btn.icon) {
-      btn.icon = btn.icon.uri;
-    }
-    contextualMenu.buttons.push(btn);
-  });
-
-  newPlatformSpecific.showContextualMenu(navigator.screenInstanceID, contextualMenu, params.onButtonPressed);
-}
-
-function dismissContextualMenu() {
-  newPlatformSpecific.dismissContextualMenu();
+  return newPlatformSpecific.showSnackbar(params);
 }
 
 export default {
@@ -623,8 +474,6 @@ export default {
   showModal,
   dismissModal,
   dismissAllModals,
-  showInAppNotification,
-  dismissInAppNotification,
   navigatorSetButtons,
   navigatorSetTabBadge,
   navigatorSetTitle,
@@ -633,8 +482,5 @@ export default {
   navigatorToggleDrawer,
   navigatorToggleTabs,
   navigatorToggleNavBar,
-  showSnackbar,
-  dismissSnackbar,
-  showContextualMenu,
-  dismissContextualMenu
+  showSnackbar
 };

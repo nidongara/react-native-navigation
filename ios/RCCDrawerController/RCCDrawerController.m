@@ -2,9 +2,8 @@
 #import "RCCViewController.h"
 #import "MMExampleDrawerVisualStateManager.h"
 #import "RCCDrawerHelper.h"
-#import <React/RCTConvert.h>
+#import "RCTConvert.h"
 #import "RCCManagerModule.h"
-#import "UIViewController+Rotation.h"
 
 #define RCCDRAWERCONTROLLER_ANIMATION_DURATION 0.33f
 
@@ -13,9 +12,7 @@
 
 @synthesize drawerStyle = _drawerStyle;
 
--(UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    return [self supportedControllerOrientations];
-}
+
 
 - (instancetype)initWithProps:(NSDictionary *)props children:(NSArray *)children globalProps:(NSDictionary*)globalProps bridge:(RCTBridge *)bridge
 {
@@ -68,9 +65,6 @@
      }];
                                                
     self.view.backgroundColor = [UIColor clearColor];
-    
-    [self setRotation:props];
-    
     
     if (!self) return nil;
     return self;

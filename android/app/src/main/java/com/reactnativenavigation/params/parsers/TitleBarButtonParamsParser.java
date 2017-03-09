@@ -3,7 +3,6 @@ package com.reactnativenavigation.params.parsers;
 import android.os.Bundle;
 
 import com.reactnativenavigation.params.AppStyle;
-import com.reactnativenavigation.params.BaseTitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.react.ImageLoader;
 
@@ -22,34 +21,32 @@ public class TitleBarButtonParamsParser extends Parser {
     public TitleBarButtonParams parseSingleButton(Bundle bundle) {
         TitleBarButtonParams result = new TitleBarButtonParams();
         result.label = bundle.getString("title");
-        if (hasKey(bundle, "icon")) {
+        if (hasKey(bundle,"icon")) {
             result.icon = ImageLoader.loadImage(bundle.getString("icon"));
         }
         result.color = getColor(bundle, "color", AppStyle.appStyle.titleBarButtonColor);
-        result.disabledColor =
-                getColor(bundle, "titleBarDisabledButtonColor", AppStyle.appStyle.titleBarDisabledButtonColor);
+        result.disabledColor = getColor(bundle, "disabledColor", AppStyle.appStyle.titleBarDisabledButtonColor);
         result.showAsAction = parseShowAsAction(bundle.getString("showAsAction"));
         result.enabled = bundle.getBoolean("enabled", true);
-        result.hint = bundle.getString("hint", "");
         result.eventId = bundle.getString("id");
         return result;
     }
 
-    BaseTitleBarButtonParams.ShowAsAction parseShowAsAction(String showAsAction) {
+    private static TitleBarButtonParams.ShowAsAction parseShowAsAction(String showAsAction) {
         if (showAsAction == null) {
-            return BaseTitleBarButtonParams.ShowAsAction.IfRoom;
+            return TitleBarButtonParams.ShowAsAction.IfRoom;
         }
 
         switch (showAsAction) {
             case "always":
-                return BaseTitleBarButtonParams.ShowAsAction.Always;
+                return TitleBarButtonParams.ShowAsAction.Always;
             case "never":
-                return BaseTitleBarButtonParams.ShowAsAction.Never;
+                return TitleBarButtonParams.ShowAsAction.Never;
             case "withText":
-                return BaseTitleBarButtonParams.ShowAsAction.WithText;
+                return TitleBarButtonParams.ShowAsAction.WithText;
             case "ifRoom":
             default:
-                return BaseTitleBarButtonParams.ShowAsAction.IfRoom;
+                return TitleBarButtonParams.ShowAsAction.IfRoom;
         }
     }
 }

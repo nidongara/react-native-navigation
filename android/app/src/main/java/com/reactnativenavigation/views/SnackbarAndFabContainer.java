@@ -5,21 +5,17 @@ import android.support.design.widget.CoordinatorLayout;
 
 import com.reactnativenavigation.events.Event;
 import com.reactnativenavigation.events.EventBus;
-import com.reactnativenavigation.events.FabSetEvent;
 import com.reactnativenavigation.events.ScreenChangedEvent;
 import com.reactnativenavigation.events.Subscriber;
-import com.reactnativenavigation.layouts.Layout;
 import com.reactnativenavigation.params.FabParams;
 import com.reactnativenavigation.params.SnackbarParams;
 
 public class SnackbarAndFabContainer extends CoordinatorLayout implements Snakbar.OnDismissListener, Subscriber{
     private Snakbar snakbar;
     private FloatingActionButtonCoordinator fabCoordinator;
-    private Layout layout;
 
-    public SnackbarAndFabContainer(Context context, Layout layout) {
+    public SnackbarAndFabContainer(Context context) {
         super(context);
-        this.layout = layout;
         fabCoordinator = new FloatingActionButtonCoordinator(this);
         EventBus.instance.register(this);
     }
@@ -42,11 +38,8 @@ public class SnackbarAndFabContainer extends CoordinatorLayout implements Snakba
 
     @Override
     public void onEvent(Event event) {
-        if (ScreenChangedEvent.TYPE.equals(event.getType())) {
+        if (event.getType() == ScreenChangedEvent.TYPE) {
             onScreenChange(((ScreenChangedEvent) event).fabParams);
-        }
-        if (FabSetEvent.TYPE.equals(event.getType())) {
-            updateFab(((FabSetEvent) event).fabParams);
         }
     }
 
@@ -55,7 +48,7 @@ public class SnackbarAndFabContainer extends CoordinatorLayout implements Snakba
         updateFab(fabParams);
     }
 
-    public void dismissSnackbar() {
+    private void dismissSnackbar() {
         if (snakbar != null) {
             snakbar.dismiss();
             snakbar = null;
@@ -67,9 +60,7 @@ public class SnackbarAndFabContainer extends CoordinatorLayout implements Snakba
             @Override
             public void run() {
                 if (fabParams != null) {
-                    if (layout.getCurrentScreen().getScreenInstanceId().equals(fabParams.screenInstanceId)) {
-                        fabCoordinator.add(fabParams);
-                    }
+                    fabCoordinator.add(fabParams);
                 }
             }
         });

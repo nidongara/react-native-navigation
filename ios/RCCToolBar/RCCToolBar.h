@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <React/RCTViewManager.h>
+#import "RCTViewManager.h"
 
 @interface RCCToolBar : RCTViewManager
 

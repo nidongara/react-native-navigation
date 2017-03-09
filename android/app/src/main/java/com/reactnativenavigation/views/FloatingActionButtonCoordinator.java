@@ -10,7 +10,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 
@@ -24,7 +23,7 @@ import java.util.ArrayList;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class FloatingActionButtonCoordinator {
-    private static final String TAG = "FloatingActionButtonCoo";
+
     private static final int INITIAL_EXPENDED_FAB_ROTATION = -90;
     private CoordinatorLayout parent;
     private FabParams params;
@@ -36,29 +35,15 @@ public class FloatingActionButtonCoordinator {
     FloatingActionButtonAnimator fabAnimator;
     private final ArrayList<FloatingActionButton> actions;
 
-    FloatingActionButtonCoordinator(CoordinatorLayout parent) {
+    public FloatingActionButtonCoordinator(CoordinatorLayout parent) {
         this.parent = parent;
         actions = new ArrayList<>();
         crossFadeAnimationDuration = parent.getResources().getInteger(android.R.integer.config_shortAnimTime);
         actionSize = (int) ViewUtils.convertDpToPixel(40);
     }
 
-    public void add(final FabParams params) {
-        Log.i(TAG, "add() called with: params = [" + params + "]");
-        if (hasFab()) {
-            remove(new Runnable() {
-                @Override
-                public void run() {
-                    add(params);
-                }
-            });
-            return;
-        }
-
+    public void add(FabParams params) {
         this.params = params;
-        if (!params.isValid()) {
-            return;
-        }
         createCollapsedFab();
         createExpendedFab();
         setStyle();
@@ -66,31 +51,25 @@ public class FloatingActionButtonCoordinator {
         fabAnimator.show();
     }
 
-    void remove(@Nullable final Runnable onComplete) {
-        if (!hasFab()) {
+    public void remove(@Nullable final Runnable onComplete) {
+        if (parent.getChildCount() == 0 || fabAnimator.isAnimating()) {
             if (onComplete != null) {
                 onComplete.run();
             }
             return;
         }
-        if (fabAnimator != null) {
-            fabAnimator.removeFabFromScreen(expendedFab, new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    removeAllViews();
-                    if (onComplete != null) {
-                        onComplete.run();
-                    }
+
+        fabAnimator.removeFabFromScreen(expendedFab, new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                removeAllViews();
+                if (onComplete != null) {
+                    onComplete.run();
                 }
-            });
-            fabAnimator.removeFabFromScreen(collapsedFab, null);
-            fabAnimator.removeActionsFromScreen(actions);
-        }
-
-    }
-
-    private boolean hasFab() {
-        return collapsedFab != null || expendedFab != null;
+            }
+        });
+        fabAnimator.removeFabFromScreen(collapsedFab, null);
+        fabAnimator.removeActionsFromScreen(actions);
     }
 
     private void removeAllViews() {
@@ -115,7 +94,7 @@ public class FloatingActionButtonCoordinator {
                     fabAnimator.showExpended();
                     showActions();
                 }
-                NavigationApplication.instance.getEventEmitter().sendNavigatorEvent(params.collapsedId, params.navigatorEventId);
+                NavigationApplication.instance.sendNavigatorEvent(params.collapsedId, params.navigatorEventId);
             }
         });
     }
@@ -129,7 +108,7 @@ public class FloatingActionButtonCoordinator {
             @Override
             public void onClick(View v) {
                 fabAnimator.collapse();
-                NavigationApplication.instance.getEventEmitter().sendNavigatorEvent(params.expendedId, params.navigatorEventId);
+                NavigationApplication.instance.sendNavigatorEvent(params.expendedId, params.navigatorEventId);
             }
         });
     }
@@ -174,7 +153,7 @@ public class FloatingActionButtonCoordinator {
         action.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                NavigationApplication.instance.getEventEmitter().sendNavigatorEvent(actionParams.id, actionParams.navigatorEventId);
+                NavigationApplication.instance.sendNavigatorEvent(actionParams.id, actionParams.navigatorEventId);
                 fabAnimator.collapse();
             }
         });

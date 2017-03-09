@@ -1,20 +1,18 @@
 package com.reactnativenavigation.views;
 
 import android.support.design.widget.Snackbar;
-import android.text.Html;
-import android.text.Spanned;
 import android.view.View;
 
 import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.params.SnackbarParams;
 
-class Snakbar {
+public class Snakbar {
     private final OnDismissListener parent;
     private final String navigatorEventId;
     private final SnackbarParams params;
     private Snackbar snackbar;
 
-    interface OnDismissListener {
+    public interface OnDismissListener {
         void onDismiss(Snakbar snakbar);
     }
 
@@ -22,7 +20,7 @@ class Snakbar {
         snackbar.show();
     }
 
-    void dismiss() {
+    public void dismiss() {
         snackbar.dismiss();
     }
 
@@ -30,7 +28,7 @@ class Snakbar {
         return snackbar.getView();
     }
 
-    Snakbar(OnDismissListener parent, String navigatorEventId, SnackbarParams params) {
+    public Snakbar(OnDismissListener parent, String navigatorEventId, SnackbarParams params) {
         this.parent = parent;
         this.navigatorEventId = navigatorEventId;
         this.params = params;
@@ -38,19 +36,10 @@ class Snakbar {
     }
 
     private void create() {
-        snackbar = Snackbar.make((View) parent, getStyledText(), params.duration);
+        snackbar = Snackbar.make((View) parent, params.text, params.duration);
         setAction(navigatorEventId, params, snackbar);
         setStyle(snackbar, params);
         setOnDismissListener();
-    }
-
-    private Spanned getStyledText() {
-        String styledText = "<font color=\"" +
-                            params.textColor.getHexColor() +
-                            "\">" +
-                            params.text +
-                            "</font>";
-        return Html.fromHtml(styledText);
     }
 
     private void setAction(final String navigatorEventId, final SnackbarParams params, Snackbar snackbar) {
@@ -58,7 +47,7 @@ class Snakbar {
             snackbar.setAction(params.buttonText, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    NavigationApplication.instance.getEventEmitter().sendNavigatorEvent(params.eventId, navigatorEventId);
+                    NavigationApplication.instance.sendNavigatorEvent(params.eventId, navigatorEventId);
                 }
             });
         }
@@ -67,9 +56,6 @@ class Snakbar {
     private void setStyle(Snackbar snackbar, SnackbarParams params) {
         if (params.buttonColor.hasColor()) {
             snackbar.setActionTextColor(params.buttonColor.getColor());
-        }
-        if (params.backgroundColor.hasColor()) {
-            snackbar.getView().setBackgroundColor(params.backgroundColor.getColor());
         }
     }
 

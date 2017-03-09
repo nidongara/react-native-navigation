@@ -1,7 +1,6 @@
 package com.reactnativenavigation.views;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,21 +12,21 @@ import com.reactnativenavigation.utils.ViewUtils;
 
 import java.util.ArrayList;
 
-class TitleBarButton implements MenuItem.OnMenuItemClickListener {
+public class TitleBarButton implements MenuItem.OnMenuItemClickListener {
 
-    protected final Menu menu;
-    protected final View parent;
-    TitleBarButtonParams buttonParams;
-    @Nullable protected String navigatorEventId;
+    private final Menu menu;
+    private final View parent;
+    private TitleBarButtonParams buttonParams;
+    private String navigatorEventId;
 
-    TitleBarButton(Menu menu, View parent, TitleBarButtonParams buttonParams, @Nullable String navigatorEventId) {
+    public TitleBarButton(Menu menu, View parent, TitleBarButtonParams buttonParams, String navigatorEventId) {
         this.menu = menu;
         this.parent = parent;
         this.buttonParams = buttonParams;
         this.navigatorEventId = navigatorEventId;
     }
 
-    MenuItem addToMenu(int index) {
+    public MenuItem addToMenu(int index) {
         MenuItem item = menu.add(Menu.NONE, Menu.NONE, index, buttonParams.label);
         item.setShowAsAction(buttonParams.showAsAction.action);
         item.setEnabled(buttonParams.enabled);
@@ -36,6 +35,7 @@ class TitleBarButton implements MenuItem.OnMenuItemClickListener {
         item.setOnMenuItemClickListener(this);
         return item;
     }
+
 
     private void setIcon(MenuItem item) {
         if (hasIcon()) {
@@ -78,7 +78,7 @@ class TitleBarButton implements MenuItem.OnMenuItemClickListener {
 
     private void setTextColorForFoundButtonViews(ArrayList<View> outViews) {
         for (View button : outViews) {
-            ((TextView) button).setTextColor(buttonParams.getColor().getColor());
+            ((TextView) button).setTextColor(buttonParams.color.getColor());
         }
     }
 
@@ -92,7 +92,7 @@ class TitleBarButton implements MenuItem.OnMenuItemClickListener {
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        NavigationApplication.instance.getEventEmitter().sendNavigatorEvent(buttonParams.eventId, navigatorEventId);
+        NavigationApplication.instance.sendNavigatorEvent(buttonParams.eventId, navigatorEventId);
         return true;
     }
 }

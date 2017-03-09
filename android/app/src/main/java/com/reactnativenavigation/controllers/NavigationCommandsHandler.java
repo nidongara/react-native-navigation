@@ -3,21 +3,14 @@ package com.reactnativenavigation.controllers;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.facebook.react.bridge.Callback;
-import com.facebook.react.bridge.Promise;
 import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.params.ActivityParams;
-import com.reactnativenavigation.params.ContextualMenuParams;
-import com.reactnativenavigation.params.FabParams;
 import com.reactnativenavigation.params.ScreenParams;
-import com.reactnativenavigation.params.SlidingOverlayParams;
 import com.reactnativenavigation.params.SnackbarParams;
 import com.reactnativenavigation.params.TitleBarButtonParams;
 import com.reactnativenavigation.params.TitleBarLeftButtonParams;
 import com.reactnativenavigation.params.parsers.ActivityParamsParser;
 import com.reactnativenavigation.params.parsers.ScreenParamsParser;
-import com.reactnativenavigation.utils.OrientationHelper;
-import com.reactnativenavigation.views.SideMenu.Side;
 
 import java.util.List;
 
@@ -34,10 +27,13 @@ public class NavigationCommandsHandler {
      *
      * @param params ActivityParams as bundle
      */
-
-    public static void startApp(Bundle params) {
-        Intent intent = new Intent(NavigationApplication.instance, NavigationActivity.class);
-        IntentDataHandler.onStartApp(intent);
+    public static void startApp(Bundle params, boolean portraitOnlyMode) {
+        Intent intent;
+        if (portraitOnlyMode) {
+            intent = new Intent(NavigationApplication.instance, PortraitNavigationActivity.class);
+        } else {
+            intent = new Intent(NavigationApplication.instance, NavigationActivity.class);
+        }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(ACTIVITY_PARAMS_BUNDLE, params);
         NavigationApplication.instance.startActivity(intent);
@@ -207,19 +203,6 @@ public class NavigationCommandsHandler {
         });
     }
 
-    public static void setScreenFab(final String screenInstanceId, final String navigatorEventId, final FabParams fab) {
-        final NavigationActivity currentActivity = NavigationActivity.currentActivity;
-        if (currentActivity == null) {
-            return;
-        }
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                currentActivity.setScreenFab(screenInstanceId, navigatorEventId, fab);
-            }
-        });
-    }
-
     public static void dismissTopModal() {
         final NavigationActivity currentActivity = NavigationActivity.currentActivity;
         if (currentActivity == null) {
@@ -248,7 +231,7 @@ public class NavigationCommandsHandler {
         });
     }
 
-    public static void toggleSideMenuVisible(final boolean animated, final Side side) {
+    public static void toggleSideMenuVisible(final boolean animated) {
         final NavigationActivity currentActivity = NavigationActivity.currentActivity;
         if (currentActivity == null) {
             return;
@@ -257,12 +240,12 @@ public class NavigationCommandsHandler {
         NavigationApplication.instance.runOnMainThread(new Runnable() {
             @Override
             public void run() {
-                currentActivity.toggleSideMenuVisible(animated, side);
+                currentActivity.toggleSideMenuVisible(animated);
             }
         });
     }
 
-    public static void setSideMenuVisible(final boolean animated, final boolean visible, final Side side) {
+    public static void setSideMenuVisible(final boolean animated, final boolean visible) {
         final NavigationActivity currentActivity = NavigationActivity.currentActivity;
         if (currentActivity == null) {
             return;
@@ -271,7 +254,7 @@ public class NavigationCommandsHandler {
         NavigationApplication.instance.runOnMainThread(new Runnable() {
             @Override
             public void run() {
-                currentActivity.setSideMenuVisible(animated, visible, side);
+                currentActivity.setSideMenuVisible(animated, visible);
             }
         });
     }
@@ -332,34 +315,6 @@ public class NavigationCommandsHandler {
         });
     }
 
-    public static void showSlidingOverlay(final SlidingOverlayParams params) {
-        final NavigationActivity currentActivity = NavigationActivity.currentActivity;
-        if (currentActivity == null) {
-            return;
-        }
-
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                currentActivity.showSlidingOverlay(params);
-            }
-        });
-    }
-
-    public static void hideSlidingOverlay() {
-        final NavigationActivity currentActivity = NavigationActivity.currentActivity;
-        if (currentActivity == null) {
-            return;
-        }
-
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                currentActivity.hideSlidingOverlay();
-            }
-        });
-    }
-
     public static void showSnackbar(final SnackbarParams params) {
         final NavigationActivity currentActivity = NavigationActivity.currentActivity;
         if (currentActivity == null) {
@@ -372,55 +327,5 @@ public class NavigationCommandsHandler {
                 currentActivity.showSnackbar(params);
             }
         });
-    }
-
-    public static void showContextualMenu(final String screenInstanceId, final ContextualMenuParams params, final Callback onButtonClicked) {
-        final NavigationActivity currentActivity = NavigationActivity.currentActivity;
-        if (currentActivity == null) {
-            return;
-        }
-
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                currentActivity.showContextualMenu(screenInstanceId, params, onButtonClicked);
-            }
-        });
-    }
-
-    public static void dismissContextualMenu(final String screenInstanceId) {
-        final NavigationActivity currentActivity = NavigationActivity.currentActivity;
-        if (currentActivity == null) {
-            return;
-        }
-
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                currentActivity.dismissContextualMenu(screenInstanceId);
-            }
-        });
-    }
-
-    public static void dismissSnackbar() {
-        final NavigationActivity currentActivity = NavigationActivity.currentActivity;
-        if (currentActivity == null) {
-            return;
-        }
-
-        NavigationApplication.instance.runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                currentActivity.dismissSnackbar();
-            }
-        });
-    }
-
-    public static void getOrientation(Promise promise) {
-        final NavigationActivity currentActivity = NavigationActivity.currentActivity;
-        if (currentActivity == null) {
-            return;
-        }
-        promise.resolve(OrientationHelper.getOrientation(currentActivity));
     }
 }

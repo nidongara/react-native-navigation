@@ -1,16 +1,17 @@
 package com.reactnativenavigation.layouts;
 
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.reactnativenavigation.params.ScreenParams;
+import com.reactnativenavigation.params.SideMenuParams;
 import com.reactnativenavigation.views.LeftButtonOnClickListener;
 
 public class ModalScreenLayout extends SingleScreenLayout {
 
-    public ModalScreenLayout(AppCompatActivity activity,
-                             ScreenParams screenParams,
-                             LeftButtonOnClickListener leftButtonOnClickListener) {
-        super(activity, null, null, screenParams);
+    public ModalScreenLayout(AppCompatActivity activity, @Nullable SideMenuParams sideMenuParams,
+                             ScreenParams screenParams, LeftButtonOnClickListener leftButtonOnClickListener) {
+        super(activity, sideMenuParams, screenParams);
         this.leftButtonOnClickListener = leftButtonOnClickListener;
     }
 

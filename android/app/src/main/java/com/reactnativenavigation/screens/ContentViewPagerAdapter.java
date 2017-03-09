@@ -10,19 +10,17 @@ import com.facebook.react.bridge.WritableMap;
 import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.events.EventBus;
 import com.reactnativenavigation.events.ScreenChangedEvent;
-import com.reactnativenavigation.events.ViewPagerScreenChangedEvent;
-import com.reactnativenavigation.events.ViewPagerScreenScrollStartEvent;
 import com.reactnativenavigation.params.PageParams;
 import com.reactnativenavigation.views.ContentView;
 
 import java.util.List;
 
-class ContentViewPagerAdapter extends PagerAdapter implements ViewPager.OnPageChangeListener {
+public class ContentViewPagerAdapter extends PagerAdapter implements ViewPager.OnPageChangeListener {
     private List<ContentView> contentViews;
     private List<PageParams> pageParams;
     private int currentPosition = 0;
 
-    ContentViewPagerAdapter(List<ContentView> contentViews, List<PageParams> pageParams) {
+    public ContentViewPagerAdapter(List<ContentView> contentViews, List<PageParams> pageParams) {
         this.contentViews = contentViews;
         this.pageParams = pageParams;
     }
@@ -54,7 +52,6 @@ class ContentViewPagerAdapter extends PagerAdapter implements ViewPager.OnPageCh
 
     @Override
     public void onPageSelected(int position) {
-        EventBus.instance.post(new ViewPagerScreenChangedEvent());
         currentPosition = position;
         EventBus.instance.post(new ScreenChangedEvent(pageParams.get(currentPosition)));
         sendTabSelectedEventToJs();
@@ -62,14 +59,12 @@ class ContentViewPagerAdapter extends PagerAdapter implements ViewPager.OnPageCh
 
     @Override
     public void onPageScrollStateChanged(int state) {
-        if (state == ViewPager.SCROLL_STATE_DRAGGING) {
-            EventBus.instance.post(new ViewPagerScreenScrollStartEvent());
-        }
+
     }
 
     private void sendTabSelectedEventToJs() {
         WritableMap data = Arguments.createMap();
         String navigatorEventId = contentViews.get(currentPosition).getNavigatorEventId();
-        NavigationApplication.instance.getEventEmitter().sendNavigatorEvent("tabSelected", navigatorEventId, data);
+        NavigationApplication.instance.sendNavigatorEvent("tabSelected", navigatorEventId, data);
     }
 }
