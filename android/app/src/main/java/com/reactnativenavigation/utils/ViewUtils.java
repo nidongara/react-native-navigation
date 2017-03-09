@@ -5,6 +5,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -33,8 +34,9 @@ public class ViewUtils {
     }
 
     public static void tintDrawable(Drawable drawable, int tint, boolean enabled) {
+
         drawable.setColorFilter(new PorterDuffColorFilter(enabled ? tint :
-                AppStyle.appStyle.titleBarDisabledButtonColor.getColor(),
+                AppStyle.appStyle.titleBarDisabledButtonColor == null ? -3355444 : AppStyle.appStyle.titleBarDisabledButtonColor.getColor(),
                 PorterDuff.Mode.SRC_IN));
     }
 
