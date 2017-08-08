@@ -34,11 +34,23 @@ public class SideMenu extends DrawerLayout {
     }
 
     public void openDrawer() {
-        openDrawer(Gravity.LEFT);
+        try{
+            openDrawer(Gravity.LEFT);
+        }catch (IllegalArgumentException ex){
+            if ("No drawer view found with gravity LEFT".equalsIgnoreCase(ex.getMessage())){
+                openDrawer(Gravity.RIGHT);
+            }
+        }
     }
 
     public void openDrawer(boolean animated) {
-        openDrawer(Gravity.LEFT, animated);
+        try{
+            openDrawer(Gravity.LEFT, animated);
+        }catch (IllegalArgumentException ex){
+            if ("No drawer view found with gravity LEFT".equalsIgnoreCase(ex.getMessage())){
+                openDrawer(Gravity.RIGHT, animated);
+            }
+        }
     }
 
     public void closeDrawer(boolean animated) {
