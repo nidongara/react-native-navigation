@@ -160,7 +160,7 @@ navigationController:(UINavigationController*)navigationController
     CGRect labelframe = subtitleLabel.frame;
     labelframe.size = labelSize;
     subtitleLabel.frame = labelframe;
-    
+    [subtitleLabel sizeToFit];
     [self.titleView addSubview:subtitleLabel];
     
     return subtitleLabel;
@@ -208,6 +208,7 @@ navigationController:(UINavigationController*)navigationController
         titleLabel.textColor = color;
     }
     
+    [titleLabel sizeToFit];
     [self.titleView addSubview:titleLabel];
     
     return titleLabel;
